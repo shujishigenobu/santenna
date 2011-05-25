@@ -1,0 +1,7 @@
+# dibayes_annotate_cdsky.rb
+
+read dibayes.tab file and ky_decision file to annotate SNPs within coding genes.
+
+(example)
+
+$ruby dibayes_annotate_cdsky.rb  -c santenna_tair9.conf.yaml b03_26_6_medium_BS13/b03_26_6_medium_BS13_SNP.tab b03_26_6_medium_BS13_SNP.dicision

@@ -4,6 +4,7 @@
 # A script that read dibayes result and annotate each SNP
 # based on KY decision file
 
+
 require 'optparse'
 require 'bio'
 require 'yaml'
@@ -45,10 +46,7 @@ end
 conf = YAML.load(File.open(options[:conf]).read)
   
 
-
-
-
-$outf = (conf[:out] || "#{File.basename($dibayes_tab)}.ann.txt")
+$outf = (options[:out] || "#{File.basename($dibayes_tab)}.ann.txt")
 o = File.open($outf, "w")
 
 STDERR.puts "Start processing ..."
@@ -163,8 +161,13 @@ File.open($dibayes_tab).each_with_index do |l, i|
   kydata = data[[chr, pos]]
   if kydata
     kydata.each do |d|
-      new_allele = d[7].delete(d[6])
+#      p kydata
+
+      ref_allele = d[6]
+      new_allele = d[7].delete(ref_allele)
       strand = d[4]
+
+      next if ref_allele == "N" # skip if ref_allele is "N"
 
       codon_ref, codon_new = d[9].downcase.split(/\->/)
       new_allele2 = Bio::Sequence::NA.new(new_allele)
