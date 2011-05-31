@@ -23,6 +23,10 @@ optparse = OptionParser.new do |opts|
     options[:out] = v
   end
 
+  opts.on('-b', '--old', "use this option if decision file is in old format") do |v|
+    options[:old] = true
+  end
+            
   opts.on('-h', '--help', 'Display this screen' ) do
     puts opts
     exit
@@ -46,7 +50,7 @@ end
 conf = YAML.load(File.open(options[:conf]).read)
   
 
-$outf = (options[:out] || "#{File.basename($dibayes_tab)}.ann.txt")
+$outf = (options[:out] || "#{File.basename($dibayes_tab)}.ann.cds.txt")
 o = File.open($outf, "w")
 
 STDERR.puts "Start processing ..."
@@ -78,7 +82,6 @@ def seqid2chr(seqid)
 end
 
 ## Read Yamaguchi's annotation table
-
 # 0:    chhr-position	1_100997
 # 1:	chr-position-seq	1_100997_C
 # 2	position	100997
@@ -97,6 +100,12 @@ end
 # 15	sample_coding_AA	*
 # 16	dicision	mutable
 
+## Yamaguchi's annotation table Version 2
+## changes from ver.1
+# 0:    chhr-position	Chr1:100997
+# 1:	chr-position-seq	Chr1:100997_C
+# 3	chr	        Chr1
+
 data = Hash.new
 ## key = [chr, position]
 ## value = array of all elements 0-16
@@ -111,6 +120,7 @@ File.open($ky_annot_file).each do |l|
   end
   data[[chr, pos, ]] << a
 end
+
 
 ## Load TAIR9 description
 tair9desc = Hash.new
@@ -157,7 +167,11 @@ File.open($dibayes_tab).each_with_index do |l, i|
 
   seqid = a[0]
   pos = a[3].to_i
-  chr = seqid2chr(seqid)
+  if options[:old]
+    chr = seqid2chr(seqid)
+  else
+    chr = seqid
+  end
   kydata = data[[chr, pos]]
   if kydata
     kydata.each do |d|
